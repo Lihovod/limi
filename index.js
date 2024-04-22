@@ -11,33 +11,39 @@ const app = express();
 
 app.use(express.json());
 
-
-
 mongoose
-  .connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB connected successfully"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
+const subSchema = new mongoose.Schema({
+  singular: String,
+  plural: String,
+});
+
+const Sub = mongoose.model("Sub", subSchema);
 
 app.get("/api/merge", async (req, res) => {
   try {
+    const id = "66266508446a17b7f19268a0";
+    const username = "Lily";
+    const sub = await Sub.findById(id);
+    const result = sub.singular.replaceAll('{userName}', username);
+
     const bucketName = "limi-subs";
     const key = "water.wav"; // file name in s3
     const downloadPath = "water.wav"; // where to put the file
-
     // Wait for the file to download
     await downloadFile(bucketName, key, downloadPath);
-    console.log("File downloaded successfully.");
 
+    await generateTrack("AvaNeural", result);
+
+
+    console.log("File downloaded successfully.");
     const file1 = "water.wav";
     const file2 = "AvaNeural.wav";
-    const outputFile = "output_audio.mp3";
+    const outputFile = "output.wav";
     mergeAudioFiles(file1, file2, outputFile);
-
-    // Open the file using fs.promises
   } catch (error) {
     console.error("Error:", error);
   }
@@ -45,12 +51,12 @@ app.get("/api/merge", async (req, res) => {
   res.status(200).send({ message: "Merged" });
 });
 
-app.post("/api/generate-track", (req, res) => {
+app.post("/api/generate-track", async (req, res) => {
   const { voice, text } = req.body;
 
   console.log(req.body);
 
-  generateTrack(voice, text);
+  
 
   res.status(200).send({ message: "Email sent" });
 });
