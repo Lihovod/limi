@@ -11,11 +11,10 @@ const app = express();
 
 app.use(express.json());
 
-const mongoURI =
-  "mongodb+srv://lihovod:na6na6nA@cluster0.kqonc.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"; // Replace with your MongoDB URI
+
 
 mongoose
-  .connect(mongoURI, {
+  .connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
